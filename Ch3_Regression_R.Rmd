@@ -344,14 +344,13 @@ Try to answer the following additional questions.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+summary(lmfit_2008)
 ```
 
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+The R-squared value is about 0.77, which indicates the model fits well.
 ```
 
 -   Should you include all the predictors? Why?
@@ -359,11 +358,12 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+lmfit_reduced <- lm(data = ames_raw_2008, formula = log(SalePrice) ~ `Garage Area` + `1st Flr SF` + `Gr Liv Area` + `Year Built` + `Year Remod/Add`)
+anova(lmfit_reduced, lmfit_2008)
 ```
 
 Your answer:
+No, not all the predictors should be included. Here Full Bath has a p-value=0.121>0.05, so it is not statistically significant. So I use Anova to compare with and without the predictor. From the result we can see that the predictor doesn't provide much help in the model. 
 
 ```         
 Please write your answer in full sentences.
@@ -1299,7 +1299,7 @@ E\left[\lVert\epsilon_{new}-\hat{\hspace{0pt}\epsilon}\rVert^2\right]&=&E\left[\
 #### Training error, estimation error, error of $\boldsymbol{\beta}_{best}$and testing error
 
 |                                      |                                                               |
-|--------------------------|----------------------------------------------|
+|---------------------------|--------------------------------------------|
 | training error                       | $\lVert (f-\hat{\hspace{0pt}f})\rVert^2+n\sigma^2-p\sigma^2$  |
 | estimation error                     | $\lVert (f-\hat{\hspace{0pt}f})\rVert^2+p\sigma^2$            |
 | error of $\boldsymbol{\beta}_{best}$ | $\lVert (f-\hat{\hspace{0pt}f})\rVert^2+n\sigma^2$            |
@@ -1308,7 +1308,7 @@ E\left[\lVert\epsilon_{new}-\hat{\hspace{0pt}\epsilon}\rVert^2\right]&=&E\left[\
 Thus, we see that
 
 |               |                                                                                                         |
-|--------------------------|----------------------------------------------|
+|--------------|---------------------------------------------------------|
 | when $n>2p$   | estimation error $\leq$ training error $\leq$ error of $\boldsymbol{\beta}_{best}$ $\leq$ testing error |
 | when $2p>n>p$ | training error $\leq$ estimation error $\leq$ error of $\boldsymbol{\beta}_{best}$ $\leq$ testing error |
 | when $n=p$    | training error $\leq$ estimation error $=$ error of $\boldsymbol{\beta}_{best}$ $\leq$ testing error    |
