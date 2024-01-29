@@ -362,8 +362,11 @@ lmfit_reduced <- lm(data = ames_raw_2008, formula = log(SalePrice) ~ `Garage Are
 anova(lmfit_reduced, lmfit_2008)
 ```
 
-Your answer:
-No, not all the predictors should be included. Here Full Bath has a p-value=0.121>0.05, so it is not statistically significant. So I use Anova to compare with and without the predictor. From the result we can see that the predictor doesn't provide much help in the model. 
+Your answer: No, not all the predictors should be included. Here Full
+Bath has a p-value=0.121\>0.05, so it is not statistically significant.
+So I use Anova to compare with and without the predictor. From the
+result we can see that the predictor doesn't provide much help in the
+model.
 
 ```         
 Please write your answer in full sentences.
@@ -375,14 +378,23 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+fitted_values <- predict(lmfit_2008)
+
+residuals <- residuals(lmfit_2008)
+
+plot(fitted_values, residuals, xlab = "Fitted Values", ylab = "Residuals",
+     main = "Residuals vs Fitted")
+abline(h = 0, col = "red") 
+abline(v = mean(fitted_values), col = "blue") 
+qqnorm(residuals)
+qqline(residuals)
 ```
 
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+Consdiering the background information, Year Built might have interaction with Year Remod/Add.
+The residual plots seems to randomly spread with several outliers. There's no obvious signs indicating interaction exists.
 ```
 
 -   Is there evidence of non-linear association between any of the
@@ -392,14 +404,29 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+ames_predictors <- c("Garage Area", "1st Flr SF", "Gr Liv Area", "Full Bath", "Year Built", "Year Remod/Add")
+
+poly_models <- list()
+
+for(pred in ames_predictors) {
+
+  formula <- as.formula(paste("log(SalePrice) ~ poly(`", pred, "`, 3, raw = TRUE)", sep=""))
+  poly_models[[pred]] <- summary(lm(formula, data = ames_raw_2008))
+}
+
+poly_models
+
 ```
 
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+According to the fitted models, we can use the p-value to tell the linearity of each predictor.
+1st Flr SF is linear.
+Gr Liv Area is linear.
+Full Bath is not linear.
+Year Built is not linear.
+Year Remod/Add is not linear.
 ```
 
 -   What are the top 5 houses that are most over priced based on your
@@ -408,14 +435,17 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+pred_2009<-exp(predict(lmfit_2008,newdata=ames_raw_2009))
+ames_raw_2009$residual <- ames_raw_2009$SalePrice - pred_2009
+ames_raw_2009 <- ames_raw_2009[order(ames_raw_2009$residual, decreasing = TRUE), ]
+head(ames_raw_2009,5)
+
 ```
 
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+Please see the table above.
 ```
 
 -   What are the top 5 most good deal based on your model?
@@ -423,14 +453,15 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+ames_raw_2009 <- ames_raw_2009[order(ames_raw_2009$residual, decreasing = F), ]
+head(ames_raw_2009,5)
+
 ```
 
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+Please see the table above,
 ```
 
 ## Problem Set
@@ -448,9 +479,11 @@ Please write your answer in full sentences.
 
 Your code:
 
-```{r,echo=TRUE}
-#
-#
+```{r,echo=TRUE, warning =FALSE}
+library(ISLR)
+
+lmfit_auto <- lm(mpg ~ cylinders + displacement + horsepower + weight+ acceleration + year + origin+name, Auto)
+summary(lmfit_auto)
 ```
 
 Your answer:
@@ -462,14 +495,23 @@ Please write your answer in full sentences.
 Comment on the output. For example: i. Is there a relationship between
 the predictor and the response?
 
+there's a linear relationship between weight and the response
+
 ii. How strong is the relationship between the predictor and the
     response?
+
+    The relationship between weight and the response are strong, and the
+    others are not
 
 iii. Is the relationship between the predictor and the response positive
      or negative?
 
+     Negative, except displacement
+
 iv. What is the predicted mpg associated with a horsepower of 98? What
     are the associated 95% confidence and prediction intervals?
+
+    23.44; 23.44+-12
 
 <!-- -->
 
@@ -479,8 +521,13 @@ iv. What is the predicted mpg associated with a horsepower of 98? What
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+plot(Auto$horsepower, Auto$mpg, xlab = "Horsepower", ylab = "MPG", 
+     main = "MPG vs Horsepower", pch = 19)
+
+lm_hp <- lm(mpg ~ horsepower, data = Auto)
+
+abline(lm_hp, col = "red")
+
 ```
 
 Your answer:
@@ -496,14 +543,14 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+
+plot(lmfit_auto, which = 1, main = "Residuals vs. Fitted")
 ```
 
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+The residual plot is very spreaded, and it is randomly spreaded.
 ```
 
 9.  This question involves the use of multiple linear regression on the
@@ -517,8 +564,10 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+Auto <- data.frame(lapply(Auto, as.numeric))
+
+pairs(Auto)
+
 ```
 
 Your answer:
@@ -534,8 +583,9 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+Auto_numeric <- Auto[, !names(Auto) %in% 'name']
+cor_matrix <- cor(Auto_numeric)
+print(cor_matrix)
 ```
 
 Your answer:
@@ -551,8 +601,9 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+lm_fit <- lm(mpg ~ . - name, data = Auto)
+summary(lm_fit)
+
 ```
 
 Your answer:
@@ -565,7 +616,24 @@ Comment on the output. For instance: i. Is there a relationship between
 the predictors and the response? ii. Which predictors appear to have a
 statistically significant relationship to the response?
 
+Yes, there is a relationship between the predictors and the response
+variable . This is indicated by the multiple R-squared value of 0.8215,
+which suggests that approximately 82.15% of the variability in miles per
+gallon can be explained by the model's predictors. The adjusted
+R-squared value of 0.8182 accounts for the number of predictors in the
+model and still indicates a strong relationship. Additionally, the
+F-statistic is highly significant (p \< 2.2e-16), which suggests that at
+least some of the predictors have a non-zero association with the
+response.
+
 iii. What does the coefficient for the year variable suggest?
+
+     The coefficient for the **`year`** variable is 0.750773, which is
+     statistically significant (p \< 2e-16). This suggests that, on
+     average, each additional year is associated with an increase of
+     about 0.75 miles per gallon in the fuel efficiency of the car,
+     holding all other variables constant. This might be interpreted as
+     cars becoming more fuel-efficient over the years.
 
 <!-- -->
 
@@ -578,14 +646,13 @@ iii. What does the coefficient for the year variable suggest?
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+plot(lm_fit)
 ```
 
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+The residual plots suggest that there are several unsually large outliers. There's some unusually high leverage.
 ```
 
 (e) Use the \* and : symbols to fit linear regression models with
@@ -596,14 +663,16 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+lm_fit_interaction <- lm(mpg ~ weight * horsepower, data=Auto)
+
+summary(lm_fit_interaction)
+
 ```
 
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+I think that the effect of horsepower on mpg could depend on the weight of the car. A lighter car might get more additional miles per gallon from an increase in horsepower than a heavier car would.
 ```
 
 (f) Try a few different transformations of the variables, such as
@@ -615,8 +684,18 @@ multiple regression model to predict Sales using Price, Urban, and US.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+fit <- lm(Sales ~ Price + Urban + US, data=Carseats)
+summary(fit)
+
+fit_log <- lm(Sales ~ log(Price) + Urban + US, data=Carseats)
+summary(fit_log)
+
+fit_sqrt <- lm(Sales ~ sqrt(Price) + Urban + US, data=Carseats)
+summary(fit_sqrt)
+
+fit_square <- lm(Sales ~ I(Price^2) + Urban + US, data=Carseats)
+summary(fit_square)
+
 ```
 
 Your answer:
@@ -632,19 +711,22 @@ Your code:
 
 ```{r,echo=TRUE}
 #
-#
 ```
 
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+The Price coefficient shows the expected change in sales for each unit increase in price. A negative coefficient means higher prices are associated with lower sales. For a binary variable like Urban, the coefficient tells us the difference in sales between urban and non-urban stores, assuming other factors are constant. The US coefficient indicates the sales difference between stores in the US and those outside, with all else being equal. These interpretations assume that the model's other assumptions are met.
 ```
 
 (c) Write out the model in equation form, being careful to handle the
     qualitative variables properly.
 
 Your code:
+
+$$
+\text{Sales} = \beta_0 + \beta_1 \cdot \text{Price} + \beta_2 \cdot \text{Urban}_{\text{Yes}} + \beta_3 \cdot \text{US}_{\text{Yes}} + \epsilon
+$$
 
 ```{r,echo=TRUE}
 #
@@ -663,7 +745,7 @@ Please write your answer in full sentences.
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+UrbanYes
 ```
 
 (e) On the basis of your response to the previous question, fit a
@@ -674,13 +756,13 @@ Your code:
 
 ```{r,echo=TRUE}
 #
-#
+fit_small <- lm(Sales ~ Price + Urban + US, data=Carseats)
+summary(fit_small)
 ```
 
 Your answer:
 
 ```         
-Please write your answer in full sentences.
 ```
 
 (f) How well do the models in (a) and (e) fit the data?
@@ -688,7 +770,7 @@ Please write your answer in full sentences.
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+The model in (e) is slightly better than the models in (a), but none of them fit the model good.
 ```
 
 (g) Using the model from (e), obtain 95% confidence intervals for the
@@ -697,14 +779,15 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+
+conf_intervals <- confint(fit_small, level = 0.95)
+conf_intervals
 ```
 
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+[11.76, 14.32]
 ```
 
 (h) Is there evidence of outliers or high leverage observations in the
@@ -713,7 +796,7 @@ Please write your answer in full sentences.
 Your answer:
 
 ```         
-Please write your answer in full sentences.
+There's no evidence.
 ```
 
 ## Additional Material
@@ -1299,7 +1382,7 @@ E\left[\lVert\epsilon_{new}-\hat{\hspace{0pt}\epsilon}\rVert^2\right]&=&E\left[\
 #### Training error, estimation error, error of $\boldsymbol{\beta}_{best}$and testing error
 
 |                                      |                                                               |
-|---------------------------|--------------------------------------------|
+|----------------------------|--------------------------------------------|
 | training error                       | $\lVert (f-\hat{\hspace{0pt}f})\rVert^2+n\sigma^2-p\sigma^2$  |
 | estimation error                     | $\lVert (f-\hat{\hspace{0pt}f})\rVert^2+p\sigma^2$            |
 | error of $\boldsymbol{\beta}_{best}$ | $\lVert (f-\hat{\hspace{0pt}f})\rVert^2+n\sigma^2$            |
@@ -1308,7 +1391,7 @@ E\left[\lVert\epsilon_{new}-\hat{\hspace{0pt}\epsilon}\rVert^2\right]&=&E\left[\
 Thus, we see that
 
 |               |                                                                                                         |
-|--------------|---------------------------------------------------------|
+|--------------------|----------------------------------------------------|
 | when $n>2p$   | estimation error $\leq$ training error $\leq$ error of $\boldsymbol{\beta}_{best}$ $\leq$ testing error |
 | when $2p>n>p$ | training error $\leq$ estimation error $\leq$ error of $\boldsymbol{\beta}_{best}$ $\leq$ testing error |
 | when $n=p$    | training error $\leq$ estimation error $=$ error of $\boldsymbol{\beta}_{best}$ $\leq$ testing error    |
